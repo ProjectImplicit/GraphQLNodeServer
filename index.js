@@ -5,22 +5,17 @@ var { buildSchema } = require('graphql');
 var Promise = require('promise');
 // Connection URL
 var dbUrl = 'mongodb://localhost:27017/myproject';
-
 var mongoose = require('mongoose');
 mongoose.connect(dbUrl);
 var database = mongoose.connection;
-
 var datasetSchema = mongoose.Schema({
     sessionId: String,
 	studyId: String,
 	datarows: [{data:[{id: String, value: String}]}]
 });
-
-
 var Dataset =mongoose.model('Dataset', datasetSchema);
-
 var graphqlSchema = buildSchema(`
-    type Query {
+	type Query {
   	  	getStudyData(studyId: String!, startDate: String, endDate: String ): String  
     }
     type Mutation {
@@ -39,11 +34,8 @@ var graphqlSchema = buildSchema(`
     input ValuePair{
     id: String!
     value: String
-    }
-`);
-
+    }`);
 var root = {
-
   insertStudyData: function ({data}) {
 	  var dataset = new Dataset(data);
 	  dataset.save(function (err, dataset) {
@@ -51,8 +43,7 @@ var root = {
 	  });
     return "saved";
   },
-  getStudyData: function (studyId,startDate,endDate) {
-  
+  getStudyData: function (studyId,startDate,endDate) { 
 	  var output=[]; 
 	  return new Promise(function (fulfill, reject){
 		  Dataset.find(function (err, results) {
@@ -66,6 +57,7 @@ var root = {
 	return output;
   }
 };
+
 app.use('/graphql', graphqlHTTP({
   schema: graphqlSchema,
   rootValue: root,
@@ -74,7 +66,6 @@ app.use('/graphql', graphqlHTTP({
 
 app.get('/', function (req, res) {
   res.send('Go to /graphql to run queries')
-
 })
 
 app.listen(3000, function () {
